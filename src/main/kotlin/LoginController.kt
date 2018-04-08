@@ -1,10 +1,17 @@
 
 
+import model.Usertest
 import tornadofx.*
 
 class LoginController : Controller() {
     val loginScreen: LoginScreen by inject()
     val secureScreen: SecureScreen by inject()
+
+    val api: Rest by inject()
+    //    val api = Rest()
+    fun loadUsertests() = api.get("/usertests").list().toModel<Usertest>()
+
+    val mapTableContent1=getUsertest(1)
 
     fun init() {
         with(config) {
@@ -28,7 +35,8 @@ class LoginController : Controller() {
 
     fun tryLogin(username: String, password: String, remember: Boolean) {
         runAsync {
-            username == "admin" && password == "secret"
+//            username == "admin" && password == "secret"
+            username == mapTableContent1.loginname && password == mapTableContent1.password
         } ui { successfulLogin ->
 
             if (successfulLogin) {
@@ -62,6 +70,28 @@ class LoginController : Controller() {
     companion object {
         val USERNAME = "username"
         val PASSWORD = "password"
+    }
+
+    fun getUsertest(id: Int): Usertest {
+        val response = api.get("/usertests/${id}")
+
+        try {
+            if (response.ok()) {
+                val result = response.one().toModel<Usertest>()
+                return result
+            } else {
+                throw Exception("getUsertest required ${response.statusCode} ${response.reason}")
+            }
+
+        } finally {
+            response.consume()
+        }
+    }
+
+    fun findUsertest(): List<Usertest> {
+        val response = api.get("/usertests")
+        val result = response.list().toModel<Usertest>()
+        return result
     }
 
 }

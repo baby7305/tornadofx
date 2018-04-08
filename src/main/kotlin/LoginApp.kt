@@ -13,6 +13,15 @@ class LoginApp : App(LoginScreen::class, Styles::class) {
         super.start(stage)
         loginController.init()
     }
+
+    val api: Rest by inject()
+//    val api = Rest()
+
+    init {
+//        Rest.useApacheHttpClient()
+//        api.
+        api.baseURI = "http://192.168.88.91:8080/api"
+    }
 }
 
 fun main(args: Array<String>) {
